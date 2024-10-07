@@ -1,10 +1,12 @@
-# Proyecto Arduino - Beacon con Emisión y Medición de CO2
+# Proyecto PBIO - Arduino
 
 ## Descripción General
 
-Este proyecto utiliza un dispositivo basado en Arduino para implementar un sistema de medición de CO2 y emisión de beacons mediante Bluetooth. Se utiliza la biblioteca `bluefruit` para la transmisión de datos por BLE (Bluetooth Low Energy) y las bibliotecas personalizadas `LED`, `PuertoSerie`, `EmisoraBLE`, `Publicador`, y `Medidor` para manejar distintos aspectos del sistema.
+Este proyecto utiliza un dispositivo sparkfun nrf52840 para implementar un sistema de medición de O3, el cuál recopila datos del sensor y emite beacons mediante Bluetooth. 
+Se utiliza la biblioteca `bluefruit` para la transmisión de datos por BLE (Bluetooth Low Energy) y las bibliotecas personalizadas `LED`, `PuertoSerie`, `EmisoraBLE`, `Publicador`, y `Medidor` para manejar distintos aspectos del sistema.
 
-El sistema mide valores de CO2 a través de sensores y publica los datos a través de un beacon utilizando el protocolo iBeacon. El LED integrado se utiliza como indicador visual, mientras que la comunicación se gestiona a través de un puerto serie a 115200 baudios.
+El sistema mide valores de ozono (O3) a través de un sensor que se implementará en los próximos sprints, y publica los datos a través de un beacon utilizando el protocolo iBeacon. 
+El LED integrado se utiliza como indicador visual, mientras que la comunicación se gestiona a través de un puerto serie a 115200 baudios.
 
 ## Estructura del Código
 
@@ -30,7 +32,7 @@ Controla el comportamiento del LED, haciéndolo brillar en intervalos específic
 
 ## Instalación y Configuración
 
-1. **Requisitos del hardware**: Se necesita un dispositivo Arduino compatible con BLE, como la placa [nRF52840](https://learn.sparkfun.com/tutorials/nrf52840-development-with-arduino-and-circuitpython).
+1. **Requisitos del hardware**: Se necesita un dispositivo Arduino compatible con BLE, en nuestro caso utilizamos la placa sparkfun nRF52840.
 2. **Bibliotecas**: Asegúrate de incluir las siguientes bibliotecas en tu proyecto:
     - `bluefruit.h`
     - `LED.h`
@@ -39,7 +41,7 @@ Controla el comportamiento del LED, haciéndolo brillar en intervalos específic
     - `Publicador.h`
     - `Medidor.h`
 
-Para instalar estas bibliotecas, agrégalas a tu IDE de Arduino o colócalas en la carpeta `libraries`.
+Para instalar estas bibliotecas, agrégalas a tu IDE de Arduino, colócandolas en la misma carpeta que arduino.ino.
 
 ## Ejecución de Tests
 
@@ -50,30 +52,17 @@ Para ejecutar las pruebas automáticas de tu proyecto:
 
 Las pruebas cubren:
 - Verificación de la emisión correcta de datos por BLE.
-- Validación de las mediciones de CO2.
+- Validación de las mediciones de O3.
 - Funcionamiento del LED y del puerto serie.
 
 ## Documentación Adicional
 
-Puedes encontrar más información y diagramas de diseño en la carpeta `docs`. Los archivos ahí incluidos proporcionan diagramas de flujo y explicaciones detalladas de las funciones.
+Puedes encontrar más información y diagramas de diseño en la carpeta `docs`. Los archivos ahí incluidos proporcionan diagramas de flujo y fotos con un QR del sensor.
 
 ### Estructura de la carpeta `docs`:
 - `funciones.md`: Explica cada una de las funciones y sus interacciones.
 - `diagramas/`: Contiene diagramas de bloques y de flujo.
 - `manual_de_uso.pdf`: Manual completo de uso del sistema.
-
-## Contribuciones
-
-Si deseas contribuir a este proyecto, sigue estos pasos:
-1. Haz un fork del repositorio.
-2. Crea una rama con el nombre de tu característica o corrección: `git checkout -b nombre-rama`.
-3. Realiza tus cambios y asegúrate de que pasen los tests.
-4. Crea un Pull Request y describe los cambios realizados.
-
-## Licencia
-
-Este proyecto está bajo la licencia MIT. Para más información, consulta el archivo `LICENSE`.
-
 
 
 
