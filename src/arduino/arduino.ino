@@ -26,68 +26,51 @@
 // --------------------------------------------------------------
 // --------------------------------------------------------------
 namespace Globales {
-  
-  LED elLED ( /* NUMERO DEL PIN LED = */ 7 );
-
-  PuertoSerie elPuerto ( /* velocidad = */ 115200 ); // 115200 o 9600 o ...
-
-  // Serial1 en el ejemplo de Curro creo que es la conexión placa-sensor 
+  LED elLED ( 7 ); // pin 7
+  PuertoSerie elPuerto ( 115200 ); // 115200 baudios
 };
 
 // --------------------------------------------------------------
 // --------------------------------------------------------------
-#include "EmisoraBLE.h"
-#include "Publicador.h"
-#include "Medidor_fijo.h"
+#include "EmisoraBLE.h" // para el beacon
+#include "Publicador.h" // para publicar valores
+#include "Medidor.h" // para medir valores
 
 
 // --------------------------------------------------------------
 // --------------------------------------------------------------
-namespace Globales {
-
+namespace Globales {          // declaración de variables globales para que sea accesible desde cualquier parte
   Publicador elPublicador;
-
   Medidor elMedidor;
-
 }; // namespace
 
 // --------------------------------------------------------------
 // --------------------------------------------------------------
-void inicializarPlaquita () {
+//  -> inicializrPlaquita() ->
+void inicializarPlaquita () {   
 
   // de momento nada
 
 } // ()
 
 // --------------------------------------------------------------
-// setup()
 // --------------------------------------------------------------
+// -> setup() ->
 void setup() {
 
-  Globales::elPuerto.esperarDisponible();
+  Globales::elPuerto.esperarDisponible();   // espera a que el puerto serie esté disponible
 
-  // 
-  // 
-  // 
-  inicializarPlaquita();
+  inicializarPlaquita();  
 
   // Suspend Loop() to save power
   // suspendLoop();
 
-  // 
-  // 
-  // 
-  Globales::elPublicador.encenderEmisora();
-
+  Globales::elPublicador.encenderEmisora();   // enciende la emisora
   // Globales::elPublicador.laEmisora.pruebaEmision();
   
-
-  // 
-  // 
-  // 
   esperar( 1000 );
 
-  Globales::elPuerto.escribir( "---- setup(): fin ---- \n " );
+  Globales::elPuerto.escribir( "---- setup(): fin ---- \n " );    // mensaje de fin de setup
 
 
   //-----------------------------------------------------------------------
@@ -108,16 +91,13 @@ void setup() {
     Globales::elPuerto.escribir("Minor: ");
     Globales::elPuerto.escribir(0); // Coloca un valor por defecto o inicial aquí
     Globales::elPuerto.escribir("\n");
-
-
-
-  
-
 } // setup ()
 
 // --------------------------------------------------------------
 // --------------------------------------------------------------
-inline void lucecitas() {
+// -> lucecitas() ->
+// Esta función se encarga de hacer brillar el LED 100 ms y apagarlo 400 ms 
+inline void lucecitas() {     //inline significa que el compilador copia el código en el lugar donde se llama
   using namespace Globales;
 
   elLED.brillar( 100 ); // 100 encendido
@@ -129,22 +109,22 @@ inline void lucecitas() {
   Globales::elLED.brillar( 1000 ); // 1000 encendido
   esperar ( 1000 ); //  100 apagado
 
-  
-  // 
-  // 
-  // 
   Globales::elMedidor.iniciarMedidor();
 } // ()
 
 // --------------------------------------------------------------
 // loop ()
 // --------------------------------------------------------------
+// Este contador se incrementa en cada iteración del loop.
+// Se usa para saber cuántas veces se ha ejecutado el loop -> Lo podemos ver en el monitor serie.
 namespace Loop {
   uint8_t cont = 0;
 };
 
-// ..............................................................
-// ..............................................................
+// --------------------------------------------------------------
+// --------------------------------------------------------------
+
+// -> loop() ->
 void loop () {
 
   using namespace Loop;
@@ -159,9 +139,7 @@ void loop () {
 
   lucecitas();
 
-  // 
-  // mido y publico
-  // 
+  // mido el valor del gas y publico el resutlado
   float valorCO2 = elMedidor.medirCO2();
   
   elPublicador.publicarCO2( valorCO2, cont, 1000 // intervalo de emisión
@@ -189,42 +167,29 @@ void loop () {
   // lo que queramos (sin seguir dicho formato)
   // 
   // Al terminar la prueba hay que hacer Publicador::laEmisora privado
-  // 
-  /*char datos[21] = {
-	'H', 'o', 'l', 'a',
-	'H', 'o', 'l', 'a',
-	'H', 'o', 'l', 'a',
-	'H', 'o', 'l', 'a',
-	'H', 'o', 'l', 'a',
-	'H'
-  };*/
-
-  char datos[21] = { 
-    'H', 'o', 'y', 
-    'N', 'o', 
-    'H', 'a', 'c', 'e', 
-    'U', 'n', 
-    'D', 'i', 'a', 
-    'S', 'o', 'l', 'e', 'a', 'd', 'o'};     //Mensaje que llega al movil --------- CAMBIAR
+  //
+  char datos[21] = {   //Mensaje que llega al movil --------- CAMBIAR
+    'L', 'a', 
+    'C', 'a', 's', 'a',
+    'D', 'e',
+    'L', 'a',
+    'A', 'b', 'u', 'e', 'l', 'a',
+    'J', 'u', 'a', 'n', 'a'
+    };    
 
   // elPublicador.laEmisora.emitirAnuncioIBeaconLibre ( &datos[0], 21 );
   elPublicador.laEmisora.emitirAnuncioIBeaconLibre ( &datos[0], 21 );
 
-
-
-
-
+// --------------------------------------------------------------
+// --------------------------------------------------------------
+// Mostrar el valor de CO2 en el monitor serie
   Serial.print("Gas: ");
   Serial.println(valorCO2);
-
-
-  
  
   // Añade un retardo para evitar saturar el puerto serie
   delay(1000);
   
 //------------------------------------------------------------------------
-
 
   esperar( 2000 );
 

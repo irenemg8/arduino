@@ -11,10 +11,14 @@
 // ----------------------------------------------------
 #include <vector>
 
+// // El diseño completo de la clase está en la carpeta doc
+
 // ----------------------------------------------------
 // alReves() utilidad
 // pone al revés el contenido de una array en el mismo array
 // ----------------------------------------------------
+
+// Esto es un template, no una clase
 template< typename T >
 T *  alReves( T * p, int n ) {
   T aux;
@@ -29,6 +33,9 @@ T *  alReves( T * p, int n ) {
 
 // ----------------------------------------------------
 // ----------------------------------------------------
+
+// char, Z, Z -> stringAUint8AlReves() -> Z
+// Esta función copia un string en un array de números al revés
 uint8_t * stringAUint8AlReves( const char * pString, uint8_t * pUint, int tamMax ) {
 
 	int longitudString =  strlen( pString );
@@ -53,11 +60,13 @@ public:
 
   // .........................................................
   // .........................................................
+  // Callbacks
   using CallbackCaracteristicaEscrita = void ( uint16_t conn_handle,
 											   BLECharacteristic * chr,
 											   uint8_t * data, uint16_t len); 
   // .........................................................
   // .........................................................
+
   class Caracteristica {
   private:
 	uint8_t uuidCaracteristica[16] = { // el uuid se copia aquí (al revés) a partir de un string-c
@@ -86,6 +95,8 @@ public:
 
 	// .........................................................
 	// .........................................................
+
+	// char, Z, SecureMode_t, SecureMode_t, Z -> Constructor() -> Z
 	Caracteristica( const char * nombreCaracteristica_ ,
 					uint8_t props,
 					SecureMode_t permisoRead,
@@ -101,6 +112,9 @@ public:
 	// .........................................................
 	// CHR_PROPS_WRITE , CHR_PROPS_READ ,  CHR_PROPS_NOTIFY 
 	// .........................................................
+
+	// Z -> asignarPropiedades() -> 
+	// Esta función asigna las propiedades de la característica. 
 	void asignarPropiedades ( uint8_t props ) {
 	  // no puedo escribir AUN si el constructor llama a esto: Serial.println( " laCaracteristica.setProperties( props ); ");
 	  (*this).laCaracteristica.setProperties( props );
@@ -109,6 +123,9 @@ public:
 	// .........................................................
 	// SecureMode_t::SECMODE_OPEN  , SecureMode_t::SECMODE_NO_ACCESS
 	// .........................................................
+
+	// SecureMode_t, SecureMode_t -> asignarPermisos() ->
+	// Esta función asigna los permisos de la característica
 	void asignarPermisos( SecureMode_t permisoRead, SecureMode_t permisoWrite ) {
 	  // no puedo escribir AUN si el constructor llama a esto: Serial.println( "laCaracteristica.setPermission( permisoRead, permisoWrite ); " );
 	  (*this).laCaracteristica.setPermission( permisoRead, permisoWrite );
@@ -116,21 +133,27 @@ public:
 
 	// .........................................................
 	// .........................................................
+
+	// Z -> asignarTamanyoDatos() ->
+	// Esta función asigna el tamaño de los datos de la característica
 	void asignarTamanyoDatos( uint8_t tam ) {
 	  // no puedo escribir AUN si el constructor llama a esto: Serial.print( " (*this).laCaracteristica.setFixedLen( tam = " );
 	  // no puedo escribir AUN si el constructor llama a esto: Serial.println( tam );
 	  // (*this).laCaracteristica.setFixedLen( tam );
-	  (*this).laCaracteristica.setMaxLen( tam );
+	  (*this).laCaracteristica.setMaxLen( tam ); 
 	} // ()
 
   public:
 	// .........................................................
 	// .........................................................
+
+	// Z, SecureMode_t, SecureMode_t, Z -> asignarPropiedadesPermisosYTamanyoDatos() ->
+	// Esta función asigna las propiedades, permisos y tamaño de los datos de la característica
 	void asignarPropiedadesPermisosYTamanyoDatos( uint8_t props,
 												 SecureMode_t permisoRead,
 												 SecureMode_t permisoWrite, 
 												 uint8_t tam ) {
-	  asignarPropiedades( props );
+	  asignarPropiedades( props ); 
 	  asignarPermisos( permisoRead, permisoWrite );
 	  asignarTamanyoDatos( tam );
 	} // ()
@@ -138,19 +161,21 @@ public:
 
 	// .........................................................
 	// .........................................................
+	// char -> leerDatos() -> Z
+	// Esta función lee los datos de la característica
 	uint16_t escribirDatos( const char * str ) {
 	  // Serial.print( " return (*this).laCaracteristica.write( str  = " );
 	  // Serial.println( str );
-
-	  uint16_t r = (*this).laCaracteristica.write( str );
-
+	  uint16_t r = (*this).laCaracteristica.write( str );  
 	  // Serial.print( ">>>Escritos " ); Serial.print( r ); Serial.println( " bytes con write() " );
-
-	  return r;
+	  return r; //devuelve el número de bytes escritos
 	} // ()
 
 	// .........................................................
 	// .........................................................
+
+    // char -> notificarDatos() -> Z
+	// Esta función notifica los datos de la característica
 	uint16_t notificarDatos( const char * str ) {
 	  
 	  uint16_t r = laCaracteristica.notify( &str[0] );
@@ -160,12 +185,18 @@ public:
 
 	// .........................................................
 	// .........................................................
+
+	// CallbackCaracteristicaEscrita -> instalarCallbackCaracteristicaEscrita() -> 
+	// Esta función instala un callback para cuando se escribe en la característica
 	void instalarCallbackCaracteristicaEscrita( CallbackCaracteristicaEscrita cb ) {
 	  (*this).laCaracteristica.setWriteCallback( cb );
 	} // ()
 
 	// .........................................................
 	// .........................................................
+
+	// -> activar() ->
+	// Esta función activa la característica
 	void activar() {
 	  err_t error = (*this).laCaracteristica.begin();
 	  Globales::elPuerto.escribir(  " (*this).laCaracteristica.begin(); error = " );
@@ -177,7 +208,7 @@ public:
   // --------------------------------------------------------
   // --------------------------------------------------------
 private:
-  
+  // Esta es la parte privada de la clase. En uuidServicio se copia el nombre del servicio al revés
   uint8_t uuidServicio[16] = { // el uuid se copia aquí (al revés) a partir de un string-c
 	// least signficant byte, el primero
 	'0', '1', '2', '3', 
@@ -200,15 +231,19 @@ public:
   
   // .........................................................
   // .........................................................
+  // Char -> constructor() ->
   ServicioEnEmisora( const char * nombreServicio_ )
 	:
-	elServicio( stringAUint8AlReves( nombreServicio_, &uuidServicio[0], 16 ) )
+	elServicio( stringAUint8AlReves( nombreServicio_, &uuidServicio[0], 16 ) ) // copia nombreServicio -> uuidServicio pero al revés
   {
 	
   } // ()
   
   // .........................................................
   // .........................................................
+
+  // -> escribeUUID() ->
+  // Esta función escribe el UUID del servicio
   void escribeUUID() {
 	Serial.println ( "**********" );
 	for (int i=0; i<= 15; i++) {
@@ -219,12 +254,16 @@ public:
 
   // .........................................................
   // .........................................................
+  // Caracteristica -> anyadirCaracteristica() ->
+  // Esta función añade una característica al servicio
   void anyadirCaracteristica( Caracteristica & car ) {
 	(*this).lasCaracteristicas.push_back( & car );
   } // ()
 
   // .........................................................
   // .........................................................
+  // -> activarServicio() ->
+  // Esta función activa el servicio
   void activarServicio( ) {
 	// entiendo que al llegar aquí ya ha sido configurado
 	// todo: características y servicio
@@ -233,7 +272,7 @@ public:
 	Serial.print( " (*this).elServicio.begin(); error = " );
 	Serial.println( error );
 
-	for( auto pCar : (*this).lasCaracteristicas ) {
+	for( auto pCar : (*this).lasCaracteristicas ) { //Esto es un bucle for-each
 	  (*pCar).activar();
 	} // for
 
@@ -241,6 +280,7 @@ public:
 
   // .........................................................
   // .........................................................
+  //Este operador permite que se pueda usar un ServicioEnEmisora como si fuera un BLEService
   operator BLEService&() {
 	// "conversión de tipo": si pongo esta clase en un sitio donde necesitan un BLEService
 	return elServicio;

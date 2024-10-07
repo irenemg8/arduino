@@ -22,6 +22,9 @@
 
 // ----------------------------------------------------------
 // ----------------------------------------------------------
+
+// Esta clase hace de interfaz con la emisora BLE
+// El diseño completo de la clase está en la carpeta doc
 class EmisoraBLE {
 private:
 
@@ -33,16 +36,19 @@ public:
 
   // .........................................................
   // .........................................................
+  // Callbacks
   using CallbackConexionEstablecida = void ( uint16_t connHandle );
   using CallbackConexionTerminada = void ( uint16_t connHandle, uint8_t reason);
 
   // .........................................................
   // .........................................................
+  // constructor
+  // Char, Z, Z -> constructor() ->
   EmisoraBLE( const char * nombreEmisora_, const uint16_t fabricanteID_,
 			  const int8_t txPower_ ) 
 	:
-	nombreEmisora( nombreEmisora_ ) ,
-	fabricanteID( fabricanteID_ ) ,
+	nombreEmisora( nombreEmisora_ ) , 
+	fabricanteID( fabricanteID_ ) , // 0x004C = Apple
 	txPower( txPower_ )
   {
 	// no encender ahora la emisora, tal vez sea por el println()
@@ -72,6 +78,8 @@ public:
 	
   // .........................................................
   // .........................................................
+  // -> encenderEmisora() -> 
+  // Esta función debe llamarse para encender la emisora. En esta versión no recibe parámetros
   void encenderEmisora() {
 	// Serial.println ( "Bluefruit.begin() " );
 	 Bluefruit.begin(); 
@@ -82,6 +90,8 @@ public:
 
   // .........................................................
   // .........................................................
+  // CallbackConexionEstablecida, CallbackConexionTerminada -> encenderEmisora() ->
+  // Esta función debe llamarse para encender la emisora. En esta versión recibe dos parámetros
   void encenderEmisora( CallbackConexionEstablecida cbce,
 						CallbackConexionTerminada cbct ) {
 
@@ -94,6 +104,8 @@ public:
 
   // .........................................................
   // .........................................................
+  // -> detenerAnuncio() ->
+  // Esta función detiene el anuncio de la emisora
   void detenerAnuncio() {
 
 	if ( (*this).estaAnunciando() ) {
@@ -104,14 +116,17 @@ public:
   }  // ()
   
   // .........................................................
-  // estaAnunciando() -> Boleano
   // .........................................................
+  // estaAnunciando() -> V/F
+  // Esta función devuelve si la emisora está anunciando o no
   bool estaAnunciando() {
 	return Bluefruit.Advertising.isRunning();
   } // ()
 
   // .........................................................
   // .........................................................
+  // Z, Z, Z, Z, Z -> emitirAnuncioIBeacon() ->
+  // Esta función emite un anuncio iBeacon, se le pasan los parámetros UUID, major, minor y rssi de la trama beacon
   void emitirAnuncioIBeacon( uint8_t * beaconUUID, int16_t major, int16_t minor, uint8_t rssi ) {
 
 	//
@@ -200,16 +215,22 @@ public:
 
 	const uint8_t tamanyoCarga = strlen( carga );
   */
+  
+  
+  // .........................................................
+  // .........................................................
+  // Z, Z -> emitirAnuncioIBeaconLibre() ->
+  // Esta función emite un anuncio iBeacon, se le pasa la carga libre de la trama beacon
   void emitirAnuncioIBeaconLibre( const char * carga, const uint8_t tamanyoCarga ) {
 
-	(*this).detenerAnuncio(); 
+	(*this).detenerAnuncio();
 
-	Bluefruit.Advertising.clearData();
+	Bluefruit.Advertising.clearData(); 
 	Bluefruit.ScanResponse.clearData(); // hace falta?
 
 	// Bluefruit.setTxPower( (*this).txPower ); creo que no lo pongo porque es uno de los bytes de la parte de carga que utilizo
-	Bluefruit.setName( (*this).nombreEmisora );
-	Bluefruit.ScanResponse.addName();
+	Bluefruit.setName( (*this).nombreEmisora );  // para que envíe el nombre de emisora
+	Bluefruit.ScanResponse.addName(); // para que envíe el nombre de emisora 
 
 	Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
 
@@ -220,7 +241,7 @@ public:
 	// hasta ahora habrá, supongo, ya puestos los 5 primeros bytes. Efectivamente.
 	// Falta poner 4 bytes fijos (company ID, beacon type, longitud) y 21 de carga
 	//
-	uint8_t restoPrefijoYCarga[4+21] = {
+	uint8_t restoPrefijoYCarga[4+21] = {  // esto define el tamaño máximo de la carga, 21 bytes, que es lo que puedo poner en un iBeacon 
 	  0x4c, 0x00, // companyID 2
 	  0x02, // ibeacon type 1byte
 	  21, // ibeacon length 1byte (dec=21)  longitud del resto // 0x15 // ibeacon length 1byte (dec=21)  longitud del resto
@@ -236,13 +257,13 @@ public:
 	// addData() hay que usarlo sólo una vez. Por eso copio la carga
 	// en el anterior array, donde he dejado 21 sitios libres
 	//
-	memcpy( &restoPrefijoYCarga[4], &carga[0], ( tamanyoCarga > 21 ? 21 : tamanyoCarga ) ); 
+	memcpy( &restoPrefijoYCarga[4], &carga[0], ( tamanyoCarga > 21 ? 21 : tamanyoCarga ) );  // copio hasta 21 bytes
 
 	//
 	// copio la carga para emitir
 	//
-	Bluefruit.Advertising.addData( BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
-								   &restoPrefijoYCarga[0],
+	Bluefruit.Advertising.addData( BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA,   // Esto sirve para que se envíe la carga
+								   &restoPrefijoYCarga[0],  
 								   4+21 );
 
 	//
@@ -262,6 +283,8 @@ public:
 
   // .........................................................
   // .........................................................
+  // ServicioEnEmisora -> anyadirServicio() -> V/F
+  // Esta función añade un servicio y devuelve si se ha podido añadir
   bool anyadirServicio( ServicioEnEmisora & servicio ) {
 
 	Globales::elPuerto.escribir( " Bluefruit.Advertising.addService( servicio ); \n");
@@ -281,12 +304,17 @@ public:
   
   // .........................................................
   // .........................................................
+  // ServicioEnEmisora -> anyadirServicioConSusCaracteristicas() -> V/F
+  // Esta función añade un servicio con sus características y devuelve si se ha podido añadir
   bool anyadirServicioConSusCaracteristicas( ServicioEnEmisora & servicio ) { 
 	return (*this).anyadirServicio( servicio );
   } // 
 
   // .........................................................
-  template <typename ... T>
+  template <typename ... T> // esto es para que pueda recibir cualquier número de parámetros
+
+  // ServicioEnEmisora, ServicioEnEmisora::Caracteristica, T, T, T, ... -> anyadirServicioConSusCaracteristicas() -> V/F
+  // Esta función añade un servicio con sus características y devuelve si se ha podido añadir
   bool anyadirServicioConSusCaracteristicas( ServicioEnEmisora & servicio,
 											 ServicioEnEmisora::Caracteristica & caracteristica,
 											 T& ... restoCaracteristicas) {
@@ -298,7 +326,10 @@ public:
   } // ()
 
   // .........................................................
-  template <typename ... T>
+  template <typename ... T> // esto es para que pueda recibir cualquier número de parámetros
+
+  // ServicioEnEmisora, ServicioEnEmisora::Caracteristica, T, T, T, ... -> anyadirServicioConSusCaracteristicasYActivar() -> V/F
+  // Esta función añade un servicio con sus características, las activa y devuelve si se ha podido añadir
   bool anyadirServicioConSusCaracteristicasYActivar( ServicioEnEmisora & servicio,
 													 // ServicioEnEmisora::Caracteristica & caracteristica,
 													 T& ... restoCaracteristicas) {
@@ -313,18 +344,24 @@ public:
 
   // .........................................................
   // .........................................................
+  // CallbackConexionEstablecida -> instalarCallbackConexionEstablecida() ->
+  // Esta función instala un callback para cuando se establece la conexión 
   void instalarCallbackConexionEstablecida( CallbackConexionEstablecida cb ) {
 	Bluefruit.Periph.setConnectCallback( cb );
   } // ()
 
   // .........................................................
   // .........................................................
+  // CallbackConexionTerminada -> instalarCallbackConexionTerminada() ->
+  // Esta función instala un callback para cuando se termina la conexión
   void instalarCallbackConexionTerminada( CallbackConexionTerminada cb ) {
 	Bluefruit.Periph.setDisconnectCallback( cb );
   } // ()
 
   // .........................................................
   // .........................................................
+  // Z -> getConexion() -> BLEConnection 
+  // Esta función devuelve la conexión BLE
   BLEConnection * getConexion( uint16_t connHandle ) {
 	return Bluefruit.Connection( connHandle );
   } // ()

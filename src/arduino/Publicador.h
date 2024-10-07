@@ -9,33 +9,33 @@
 
 // --------------------------------------------------------------
 // --------------------------------------------------------------
+// // El diseño completo de la clase está en la carpeta doc
+
 class Publicador {
 
   // ............................................................
   // ............................................................
 private:
 
-  /*uint8_t beaconUUID[16] = { //UUID del Beacon // --------------------------------------------- CAMBIAR
-	'E', 'P', 'S', 'G', '-', 'G', 'T', 'I', 
-	'-', 'P', 'R', 'O', 'Y', '-', '3', 'A'
-	};*/
-
+// Esto es el UUID del Beacon
 uint8_t beaconUUID[16] = { //UUID del Beacon // --------------------------------------------- CAMBIAR
-  'E', 'S', 'T', 'O', '-', 'E', 'S', '-', 
-  'U', 'N', '-', 'T', 'E', 'X', 'T', 'O'
+  'I', 'N', 'N', 'O', 'V', 'A', 'R',
+  'E', 'S', 
+  'C', 'R', 'E', 'C', 'E', 'R', '.'
   };
   
 
   // ............................................................
   // ............................................................
 public:
+// Esto es la emisora. La clase EmisoraBLE está en EmisoraBLE.h
   EmisoraBLE laEmisora {
-	"Manolito", //  nombre emisora   //Nombre que aparece como dispositivo en nRFConnect ----------- CAMBIAR
+	"Pvchipu", //  nombre emisora   //Nombre que aparece como dispositivo en nRFConnect ----------- CAMBIAR
 	  0x004c, // fabricanteID (Apple)
 	  4 // txPower
 	  };
   
-  const int RSSI = -53;
+  const int RSSI = -53; 
 
   // ............................................................
   // ............................................................
@@ -56,19 +56,23 @@ public:
 
   // ............................................................
   // ............................................................
+  // -> encenderEmisora() ->
+  // Esta función enciende la emisora
   void encenderEmisora() {
 	(*this).laEmisora.encenderEmisora();
   } // ()
 
   // ............................................................
   // ............................................................
+  // Z, Z, Z -> publicarCO2() ->
+  // Esta función publica un valor de CO2 con un contador y un tiempo de espera. Los valores se publican en un iBeacon
   void publicarCO2( int16_t valorCO2, uint8_t contador, long tiempoEspera ) {
 
 	//
 	// 1. empezamos anuncio
 	//
-	uint16_t major = (MedicionesID::CO2 << 8) + contador;
-	(*this).laEmisora.emitirAnuncioIBeacon( (*this).beaconUUID, 
+	uint16_t major = (MedicionesID::CO2 << 8) + contador;  				//Lo que se envía en el major
+	(*this).laEmisora.emitirAnuncioIBeacon( (*this).beaconUUID, 		//Contenido del beacon
 											major,
 											valorCO2, // minor
 											(*this).RSSI // rssi
