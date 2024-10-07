@@ -30,7 +30,7 @@ class Medidor {
   // medirCO2() -> float
   // Esta función devuelve el valor de CO2 en ppm, pero por ahora solo enviaremos un dato fijo
   float medirCO2() {
-    return 2222;   //----------- CAMBIAR ESTE DATO
+    return 2111;   //----------- CAMBIAR ESTE DATO
   } // ()
 
   // .....................................................
