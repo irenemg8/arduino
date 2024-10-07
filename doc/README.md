@@ -20,8 +20,8 @@ La función `setup()` inicializa la placa y configura los componentes esenciales
 La función `loop()` se ejecuta continuamente y realiza las siguientes tareas:
 - Incrementa un contador para llevar un registro del número de iteraciones.
 - Hace brillar el LED con una secuencia de encendido/apagado.
-- Mide el nivel de CO2 y publica los resultados mediante BLE.
-- Muestra en el monitor serie el valor de CO2, además del `Major` y `Minor` del beacon.
+- Mide el nivel de O3 y publica los resultados mediante BLE.
+- Muestra en el monitor serie el valor de O3, además del `Major` y `Minor` del beacon.
 
 ### 3. Funciones adicionales
 #### `inicializarPlaquita()`
@@ -55,9 +55,6 @@ Las pruebas cubren:
 - Validación de las mediciones de O3.
 - Funcionamiento del LED y del puerto serie.
 
-## Documentación Adicional
-
-Puedes encontrar más información y diagramas de diseño en la carpeta `docs`. Los archivos ahí incluidos proporcionan diagramas de flujo y fotos con un QR del sensor.
 
 ### Estructura de la carpeta `docs`:
 - `funciones.md`: Explica cada una de las funciones y sus interacciones.
@@ -65,6 +62,12 @@ Puedes encontrar más información y diagramas de diseño en la carpeta `docs`. 
 - `manual_de_uso.pdf`: Manual completo de uso del sistema.
 
 
+## Documentación Adicional
+
+Puedes encontrar más información y diagramas de diseño en la carpeta `docs`. Los archivos ahí incluidos proporcionan diagramas de flujo y fotos con un QR del sensor.
+
+
+## Cabeceras
 
 ### `EmisoraBLE.h`
 
@@ -88,6 +91,7 @@ Este archivo contiene la implementación de la clase `EmisoraBLE`, que se encarg
 
 #### Documentación adicional:
 El diseño completo de esta clase se encuentra documentado en la carpeta `docs`, donde se explican las interacciones internas y la arquitectura de la emisora BLE.
+
 ### `LED.h`
 
 Este archivo define la clase `LED`, la cual permite controlar un LED conectado a un pin específico de la placa. La clase proporciona métodos para encender, apagar, alternar el estado y hacer brillar el LED por un período determinado.
@@ -110,21 +114,23 @@ El diseño completo de la clase se encuentra en la carpeta `docs`, donde se deta
 
 ### `Medidor.h`
 
-Este archivo define la clase `Medidor`, que se encarga de obtener mediciones de CO2 a partir de un sensor conectado a la placa. Por ahora, la función de medición devuelve un valor fijo, pero está preparada para leer datos reales del sensor de gas conectado a los pines definidos.
+Este archivo define la clase `Medidor`, que se encarga de obtener mediciones de O3 a partir de un sensor conectado a la placa. Por ahora, la función de medición devuelve un valor fijo, pero está preparada para leer datos reales del sensor de gas conectado a los pines definidos.
 
 #### Funcionalidades principales:
 - **Inicialización del medidor**: Se prepara el sensor de gas para tomar lecturas.
-- **Medición del nivel de CO2**: Devuelve el valor de CO2 en partes por millón (ppm). Actualmente, devuelve un valor fijo, pero puede ser configurada para leer del sensor.
+- **Medición del nivel de O3**: Devuelve el valor de O3 en partes por millón (ppm). Actualmente, devuelve un valor fijo, pero puede ser configurada para leer del sensor.
 
 #### Variables destacadas:
 - `pin_gas`: Pin de la placa donde está conectado el sensor de gas.
 - `pin_vref`: Pin de referencia del sensor de gas.
 - `TIAGain`: Ganancia del amplificador, según el datasheet del sensor.
 - `sensitivityCode`: Código de sensibilidad del sensor, utilizado para ajustar las lecturas.
+- En nuestro caso, utilizamos los pines 5, 29, 30.
+- TIAGain son 499 y el sensitivityCode que viene especificado por el QR del sensor es -41.26
 
 #### Métodos destacados:
 - `void iniciarMedidor()`: Inicializa el medidor de gas.
-- `float medirCO2()`: Devuelve un valor de CO2 en ppm (valor actualmente fijo, pero se puede cambiar para devolver mediciones reales del sensor).
+- `float medirCO2()`: Devuelve un valor de O3 en ppm (valor actualmente fijo, pero se puede cambiar para devolver mediciones reales del sensor). De momento nosotros solo mandaremos un valor fijo para este primer sprint.
 
 #### Documentación adicional:
 El diseño completo de la clase se encuentra en la carpeta `docs`, donde se detallan las especificaciones del sensor y la forma de realizar lecturas más precisas.
@@ -133,11 +139,11 @@ El diseño completo de la clase se encuentra en la carpeta `docs`, donde se deta
 
 ### `Publicador.h`
 
-Este archivo define la clase `Publicador`, la cual gestiona la publicación de datos mediante iBeacon, utilizando la clase `EmisoraBLE`. En este proyecto, la clase `Publicador` se utiliza para enviar valores de CO2 junto con otros datos a través de Bluetooth Low Energy (BLE).
+Este archivo define la clase `Publicador`, la cual gestiona la publicación de datos mediante iBeacon, utilizando la clase `EmisoraBLE`. En este proyecto, la clase `Publicador` se utiliza para enviar valores de O3 junto con otros datos a través de Bluetooth Low Energy (BLE).
 
 #### Funcionalidades principales:
 - **Gestión de la emisora BLE**: Encendido y control de la emisora BLE para la transmisión de información en formato iBeacon.
-- **Publicación de datos CO2**: Publica los valores de CO2 medidos junto con un contador utilizando la trama iBeacon.
+- **Publicación de datos O3**: Publica los valores de O3 medidos junto con un contador utilizando la trama iBeacon.
 - **Configuración del UUID y otros parámetros del beacon**: Define un UUID específico, y configura los valores `major` y `minor` del iBeacon para transmitir la información.
 
 #### Variables destacadas:
@@ -147,7 +153,7 @@ Este archivo define la clase `Publicador`, la cual gestiona la publicación de d
 
 #### Métodos destacados:
 - `void encenderEmisora()`: Enciende la emisora BLE.
-- `void publicarCO2(int16_t valorCO2, uint8_t contador, long tiempoEspera)`: Publica el valor de CO2 en un beacon utilizando los campos `major` y `minor` del iBeacon, y detiene la emisión después de un intervalo de tiempo.
+- `void publicarO3(int16_t valorCO2, uint8_t contador, long tiempoEspera)`: Publica el valor de O3 en un beacon utilizando los campos `major` y `minor` del iBeacon, y detiene la emisión después de un intervalo de tiempo.
 
 #### Documentación adicional:
 El diseño completo de la clase `Publicador` y sus interacciones con la emisora BLE se encuentra en la carpeta `docs`.
@@ -261,7 +267,7 @@ Al finalizar cada test, los estados de los componentes (como el LED) vuelven a s
 
 
 ### Test: `test_getMedicionCO2()`
-Este test valida que la función `medirCO2()` de la clase `Medidor` devuelve el valor de CO2 en ppm correctamente, que por ahora está configurado para devolver un valor fijo (2222 ppm).
+Este test valida que la función `medirCO2()` de la clase `Medidor` devuelve el valor de O3 en ppm correctamente, que por ahora está configurado para devolver un valor fijo (2222 ppm).
 
 - **Preparación**: Se instancia un objeto `Medidor`.
 - **Ejecución**: Se llama al método `medirCO2()` y se imprime el valor medido en el Monitor Serie.
@@ -279,15 +285,15 @@ Para ejecutar este test:
 
 
 ### Test: `pruebaPublicador()`
-Este test verifica el funcionamiento de la clase `Publicador`, específicamente la capacidad de encender la emisora y publicar datos de CO2 a través de un anuncio iBeacon.
+Este test verifica el funcionamiento de la clase `Publicador`, específicamente la capacidad de encender la emisora y publicar datos de O3 a través de un anuncio iBeacon.
 
 - **Preparación**: Se inicializa un objeto `Publicador` y se enciende la emisora BLE.
 - **Ejecución**: 
-  - Publica un valor ficticio de CO2 (`400 ppm`) con un contador (`1`) durante un tiempo especificado de 2000 ms.
+  - Publica un valor ficticio de O3 (`400 ppm`) con un contador (`1`) durante un tiempo especificado de 2000 ms.
   - La prueba emite los datos a través del iBeacon y espera el tiempo definido antes de detener el anuncio.
 - **Expectativa**:
   - La emisora debe encenderse correctamente.
-  - Se debe emitir un anuncio iBeacon que incluya el valor de CO2.
+  - Se debe emitir un anuncio iBeacon que incluya el valor de O3.
   - El anuncio debe detenerse después del tiempo especificado.
 - **Comprobación**: Debido a la naturaleza de esta prueba, las salidas deben ser revisadas manualmente en el Monitor Serie. Se espera ver mensajes que confirmen la emisión del anuncio y la detención después de los 2000 ms.
 - **Desmontaje**: Se asegura que la emisora se detiene correctamente al finalizar la prueba.
@@ -297,5 +303,5 @@ Este test verifica el funcionamiento de la clase `Publicador`, específicamente 
 Para ejecutar esta prueba:
 1. Sube el código al dispositivo Arduino.
 2. Abre el Monitor Serie en el IDE de Arduino.
-3. Verifica los mensajes impresos que confirmen que la emisora se encendió, emitió el valor de CO2 y luego detuvo el anuncio.
+3. Verifica los mensajes impresos que confirmen que la emisora se encendió, emitió el valor de O3 y luego detuvo el anuncio.
 
